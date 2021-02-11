@@ -1,0 +1,234 @@
+---
+title: "CSDE 502: Homework #4"
+author: "[Esteban J. Valencia](mailto:estebanv@uw.edu)"
+date: '`r format(Sys.time(), "%Y-%m-%d %H:%M")`'
+header-includes:
+- \usepackage{float} 
+- \floatplacement{figure}{H}
+output: 
+    bookdown::html_document2:
+        theme: journal
+        number_sections: true
+        self_contained: true
+        code_folding: hide
+        toc: true
+        toc_float:
+            collapsed: true
+            smooth_scroll: false
+urlcolor: blue        
+---
+```{r setup, warning = FALSE, message = FALSE, results = "hide"}
+#Step 0.0.1: Specifying chunk options
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE, 
+                      warning = FALSE, 
+                      results = "hide",
+                      width = 1000)
+
+#Step 0.0.2: Setting CRAN mirror
+options(repos = "https://mirror.las.iastate.edu/CRAN/",
+        width = 1000)
+
+#Step 0.0.2: Installing & Reading packages
+if(!require (knitr)) install.packages("knitr")
+library(knitr)
+if(!require (bookdown)) install.packages("bookdown")
+library(bookdown)
+if(!require (tidyverse)) install.packages("tidyverse")
+library(tidyverse)
+if(!require (magisttr)) install.packages("magrittr")
+(library(magrittr))
+if(!require (kableExtra)) install.packages("kableExtra")
+library(kableExtra)
+if(!require (ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+if(!require (readstata13)) install.packages("readstata13")
+library(readstata13)
+if(!require (captioner)) install.packages("captioner")
+library(captioner)
+if(!require (Rmisc)) install.packages("Rmisc")
+
+#Step 0.0.3: Setting captions
+cap.tab = captioner(prefix = "Table")
+cap.fig = captioner(prefix = "Figure")
+
+#Step 0.0.4: Setting file directory
+f.dir = paste0(getwd(), "/")
+```
+```{css, echo=FALSE}
+#Step 0.0.5: Setting wide-wise scrolling
+pre, code {white-space: pre !important; overflow-x: auto}
+
+```
+# Introduction
+
+This assignment will build your skills in writing R functions. Functions are particularly useful if you will be running the same set of operations multiple times on different data sets that have the same structure. For example, if you wanted to make identical bar plots from the Add Health race and ethnicity variables, it would be more efficient to write a function rather than copying-and-pasting a block of code and making a series of small edits.
+
+This exercise uses an example of bootstrapping: sampling *with replacement* from a sample of size *n*, man samples of size *n*.
+
+Create a dataset using the following R statement:
+`gradpain <- c(rep(0,11), rep(1,1), rep(3,6), rep(4,8), rep(5,10), rep(6,8), rep(7, 30), rep(8, 10), rep(9, 6), rep(10, 2))`
+
+**Answer the following questions:**
+
+**1. How many graduate students are in the sample? Use R code to determine this.**
+
+**2. What is the sample mean?**
+
+Create a function with these arguments: (1) the vector of data "d.vec"; (2) the size of sample "n". The function will sample with replacement a sample of size "n" from vector "d.vec". The function will return a list that contains: (1) the size of the sample; (2) the mean of the sample.
+
+Use `set.seed(7)` then run your function passing the "grandpain" vector calculated above and the sample size of `length(grandpain)`. Use a loop to do this 100 times and store all 100 returned means.
+
+**3. What is the mean of these 100 means?**
+
+**4. What is the standard deviation of these 100 means?**
+
+Write another function that performs the steps listed in above. That should be a function with these arguments: (1) the vector of data "d.vec"; (2) the size of sample "n"; (3) the number of samples "num.samples"
+
+The function should sample *with replacement* a sample of size "n" from the vector "d.vec" and does this "num.samples" times.
+
+The function should return a *list* that contains: (1) the size of each sample; (2) the number of samples; (3) a vector of length num.samples; (4) the mean of the means; (5) the standard deviation of the means (6) the 96% confidence interval around the mean.
+
+Run your function with the three arguments `d.vec = grandpain`; `n = length(grandpain)`; and `num.samples = 100`.
+
+**5. What does your function return for the mean of means?**
+
+**6. What does your function return for the standard deviation of means?**
+
+**7. What does your function return for the 95% confidence interval around the mean?**
+
+```{r}
+#Step 1.0.1: Constructing `gradpain` data
+gradpain = c(rep(0, 11),
+             rep(1, 1),
+             rep(2, 2),
+             rep(3, 6),
+             rep(4, 8),
+             rep(5, 10),
+             rep(6, 8),
+             rep(7, 30),
+             rep(8, 10),
+             rep(9, 6),
+             rep(10, 2))
+
+```
+
+# Question 1
+
+*How many graduate students are in the sample?*
+
+There are `r length(gradpain)` students in the `gradpain` sample.
+
+# Question 2
+
+*What is the sample mean?*
+
+The sample mean is $m$ = `r mean(gradpain)`.
+
+# Question 3
+```{r}
+#Step 4.0.1: Writing function 1
+func.1 = function(d.vec, n){
+    
+    #Generating sample, with replacement
+    df = sample(x = d.vec, size = n, replace = TRUE)
+    
+    #Assembling list of sample characteristics
+    output = list(Sample_size = length(df),
+                  Sample_mean = mean(df))
+    
+    #Specifying output
+    return(output)
+}
+
+#Step 4.0.2: Bootstrapping function 1 with `gradpain` parameters
+    
+    #Setting Seed
+    set.seed(7)
+    
+    #Generating empty set
+    dframe = NULL
+    
+    #Running bootstrap
+    for(i in 1:length(gradpain)){
+    
+        #Executing function 1
+        item.1 = func.1(d.vec = gradpain, n = length(gradpain))
+        
+        #Saving sample mean
+        item.2 = item.1$Sample_mean
+        
+        #Adding sample means to dframe
+        dframe = c(dframe, item.2)
+    }
+    
+```
+
+*What is the mean of these 100 means?*
+
+The mean of these 100 means, rounded to the nearest hundredth, is $m$ = `r round(mean(dframe), digits = 2)`.
+
+# Question 4
+
+*What is the standard deviation of these 100 means?*
+
+The standard deviation of these 100 means, rounded to the nearest hundredth, is $sd$ = `r round(sd(dframe), digits = 2)`.
+
+# Question 5
+```{r}
+#Step 6.0.1: Writing expanded func.1
+func.2 = function(d.vec, n, num.samples){
+    
+    #Establishing output vector
+    vec.out = NULL
+    
+    for(i in 1:num.samples){
+        
+        #Executing func.1
+        item.1 = func.1(d.vec = gradpain, n = length(gradpain))
+        
+        #Saving sample mean
+        item.2 = item.1$Sample_mean
+        
+        #Adding sample mean to output vector
+        vec.out = c(vec.out, 
+                    item.2)
+    }
+    
+    #Establishing output
+    output = list(Sample_size = noquote(paste0("The size of each sample is n = ", n, ".")),
+                  Sample_reps = noquote(paste0("The number of samples is n = ", num.samples, ".")),
+                  Sample_means = vec.out,
+                  Mean_of_means = mean(vec.out),
+                  SD_of_means = sd(vec.out),
+                  CI_of_means = Rmisc::CI(x = vec.out, ci = 0.95))
+    
+    #Returning output
+    return(output)
+}
+
+#Step 6.0.2: Executing func.2
+dframe = func.2(d.vec = gradpain, n = length(gradpain), num.samples = 100)
+```
+
+*What does your function return for the mean of means?*
+
+The mean-of-means, rounded to the nearest hundredth, is $m_{means}$ = `r round(dframe$Mean_of_means, digits = 2)`.
+
+# Question 6
+
+*What does your function return for the standard deviation of the mean of means?*
+
+The standard deviation for the mean-of-means, rounded to the nearest hundredth, is $sd_{means}$ = `r round(dframe$SD_of_means, digits = 2)`.
+
+# Question 7
+
+*What does your function return for the 95% confidence interval around the mean?*
+
+The 95% confidence interval around the mean-of-means, rounded to the nearest hundredth, is $CI_{means}$: `r round(dframe$CI_of_means[3], digits = 2)` - `r round(dframe$CI_of_means[1], digits = 2)`.
+
+# Source code appendix
+
+```{r, comment = '', echo = FALSE, results = "markdown"}
+cat(readLines("estebanv_csde502_hw4.Rmd"), sep = '\n')
+```
