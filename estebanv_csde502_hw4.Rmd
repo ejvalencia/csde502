@@ -36,7 +36,7 @@ if(!require (bookdown)) install.packages("bookdown")
 library(bookdown)
 if(!require (tidyverse)) install.packages("tidyverse")
 library(tidyverse)
-if(!require (magisttr)) install.packages("magrittr")
+if(!require (magrittr)) install.packages("magrittr")                        ##Editing mis-specified package
 (library(magrittr))
 if(!require (kableExtra)) install.packages("kableExtra")
 library(kableExtra)
@@ -150,7 +150,7 @@ func.1 = function(d.vec, n){
     dframe = NULL
     
     #Running bootstrap
-    for(i in 1:length(gradpain)){
+    for(i in 1:100){                                                       ## Correcting loop iterations
     
         #Executing function 1
         item.1 = func.1(d.vec = gradpain, n = length(gradpain))
@@ -181,6 +181,9 @@ func.2 = function(d.vec, n, num.samples){
     
     #Establishing output vector
     vec.out = NULL
+    
+    #Setting Seed                                                          ##Correcting unspecified seed
+    set.seed(7)
     
     for(i in 1:num.samples){
         
